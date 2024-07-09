@@ -26,7 +26,7 @@ func NewLoginEndpoint(routeParams params.AuthRouteParams) contract.Endpoint {
 }
 
 func (ep *loginEndpoint) MapEndpoint() {
-	ep.LoginGroup.POST("", ep.loginHandler())
+	ep.RootGroup.POST("/login", ep.loginHandler())
 }
 
 type LoginRequest struct {
@@ -50,12 +50,13 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 			Email:    req.Email,
 			Password: req.Password,
 		})
+
 		if err != nil {
 			ep.Logger.Warn("login failed", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, ErrInvalidCredentials.Error())
 		}
 
-		if err := cookie.SetAuthSession(c, authDetails.AccessToken, "session-secret"); err != nil {
+		if err := cookie.SetAuthSession(c, authDetails.AccessToken, ep.SessionSecret); err != nil {
 			ep.Logger.Error("could not set auth session", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, ErrLoggingIn.Error())
 		}

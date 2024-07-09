@@ -152,13 +152,13 @@ func addEcho(container *di.Builder) error {
 				api := getApiGroup(ctn)
 				logger := ctn.Get("log").(*slog.Logger)
 				sb := ctn.Get("supabase").(*supa.Supabase)
+				config := ctn.Get("config").(*application.Config)
 
 				authRouteParams := &params.AuthRouteParams{
-					LoginGroup:  api.Group("/login"),
-					SignupGroup: api.Group("/signup"),
-					LogoutGroup: api.Group("/logout"),
-					Logger:      logger,
-					Supabase:    sb,
+					RootGroup:     api.Group(""),
+					SessionSecret: config.SessionSecret,
+					Logger:        logger,
+					Supabase:      sb,
 				}
 
 				return authRouteParams, nil

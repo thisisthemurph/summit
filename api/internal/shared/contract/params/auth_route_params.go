@@ -7,10 +7,8 @@ import (
 )
 
 type AuthRouteParams struct {
-	LoginGroup  *echo.Group
-	SignupGroup *echo.Group
-	LogoutGroup *echo.Group
-
-	Logger   *slog.Logger
-	Supabase *supa.Supabase
+	RootGroup     *echo.Group
+	SessionSecret string
+	Logger        *slog.Logger
+	Supabase      *supa.Supabase
 }

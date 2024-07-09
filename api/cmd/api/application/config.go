@@ -1,16 +1,18 @@
 package application
 
 type Config struct {
-	Host     string
-	Supabase SupabaseConfig
-	Database DatabaseConfig
+	Host          string
+	SessionSecret string
+	Supabase      SupabaseConfig
+	Database      DatabaseConfig
 }
 
 type GetEnvFunc func(string) string
 
 func NewConfig(getenv GetEnvFunc) *Config {
 	return &Config{
-		Host: getenv("HOST"),
+		Host:          getenv("HOST"),
+		SessionSecret: getenv("SESSION_SECRET"),
 		Supabase: SupabaseConfig{
 			URL:    getenv("SUPABASE_URL"),
 			Secret: getenv("SUPABASE_SECRET"),

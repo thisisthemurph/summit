@@ -22,7 +22,7 @@ func NewSignUpEndpoint(routeParams params.AuthRouteParams) contract.Endpoint {
 }
 
 func (ep *signUpEndpoint) MapEndpoint() {
-	ep.SignupGroup.POST("", ep.signUpHandler())
+	ep.RootGroup.POST("/signup", ep.signUpHandler())
 }
 
 type signUpRequest struct {
