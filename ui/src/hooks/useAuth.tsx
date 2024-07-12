@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState } from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
+import { AuthenticatedUser } from "../shared/types/responseTypes.ts";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
+  authenticatedUser: AuthenticatedUser | null;
   loginUser: (email: string, password: string) => Promise<void>;
   logoutUser: () => void;
 }
@@ -11,9 +13,31 @@ type AuthProviderProps = {
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+const IsAuthenticatedStorageKey = "isAuthenticated";
+const AuthenticatedUserStorageKey = "authenticatedUser";
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const state = localStorage.getItem(IsAuthenticatedStorageKey);
+    return state === "true";
+  });
+
+  const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser | null>(() => {
+    const state = localStorage.getItem(AuthenticatedUserStorageKey);
+    return state ? JSON.parse(state) : null;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(IsAuthenticatedStorageKey, isAuthenticated.toString())
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    if (authenticatedUser) {
+      localStorage.setItem(AuthenticatedUserStorageKey, JSON.stringify(authenticatedUser));
+    } else {
+      localStorage.removeItem(AuthenticatedUserStorageKey);
+    }
+  }, [authenticatedUser]);
 
   const loginUser = async (email: string, password: string) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -28,18 +52,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     if (result.status !== 200) {
       setIsAuthenticated(false);
+      setAuthenticatedUser(null);
       alert("There was an error logging you in!");
       return;
     }
+
+    const user = await result.json();
     setIsAuthenticated(true);
+    setAuthenticatedUser(user);
   }
 
   const logoutUser = () => {
     setIsAuthenticated(false);
+    setAuthenticatedUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{isAuthenticated, loginUser, logoutUser}}>
+    <AuthContext.Provider value={{isAuthenticated, authenticatedUser, loginUser, logoutUser}}>
       {children}
     </AuthContext.Provider>
   )

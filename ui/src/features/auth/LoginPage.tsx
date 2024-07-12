@@ -2,8 +2,8 @@ import { useForm } from 'react-hook-form';
 import { FormField } from "../../shared/components/Forms.tsx";
 import { z, ZodType } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
-import {useAuth} from "../../hooks/useAuth.tsx";
-import {useNavigate} from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth.tsx";
+import { useNavigate } from "react-router-dom";
 
 type FormValues = {
   email: string;

@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -15,12 +14,6 @@ const (
 type ContextKey string
 
 const AuthenticatedUserContextKey ContextKey = "authenticatedUser"
-
-type AuthenticatedUser struct {
-	ID          uuid.UUID `json:"id"`
-	AccessToken string    `json:"access_token"`
-	LoggedIn    bool      `json:"logged_in"`
-}
 
 func SetAuthSession(c echo.Context, accessToken, sessionSecret string) error {
 	session, _ := GetCookieStoreSession(c.Request(), SessionCookieStoreKey, sessionSecret)

@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/nedpals/supabase-go"
 	"net/http"
@@ -62,7 +63,13 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, ErrLoggingIn.Error())
 		}
 
-		// TODO: Return an authenticated user object to be used in the React AuthContext
-		return c.JSON(http.StatusOK, echo.Map{})
+		userID, _ := uuid.Parse(authDetails.User.ID)
+		authenticatedUser := auth.AuthenticatedUser{
+			ID:    userID,
+			Name:  "",
+			Email: authDetails.User.Email,
+		}
+
+		return c.JSON(http.StatusOK, authenticatedUser)
 	}
 }
