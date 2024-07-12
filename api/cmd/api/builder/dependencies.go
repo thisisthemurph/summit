@@ -1,7 +1,6 @@
 package builder
 
 import (
-	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -13,6 +12,7 @@ import (
 	authEndpoint "upworkapi/internal/features/auth/endpoint"
 	"upworkapi/internal/shared/contract"
 	"upworkapi/internal/shared/contract/params"
+	mw "upworkapi/internal/shared/middleware"
 	"upworkapi/pkg/db"
 	"upworkapi/pkg/supa"
 )
@@ -114,26 +114,26 @@ func addEcho(container *di.Builder) error {
 			Name:  "echo",
 			Scope: di.App,
 			Build: func(ctn di.Container) (interface{}, error) {
-				//logger := ctn.Get("log").(*slog.Logger)
-				//cfg := ctn.Get("config").(*application.Config)
+				logger := ctn.Get("log").(*slog.Logger)
+				config := ctn.Get("config").(*application.Config)
+				sb := ctn.Get("supabase").(*supa.Supabase)
 
 				e := echo.New()
 				e.Validator = &CustomValidator{validator: validator.New()}
 
 				// Middleware
+				authMiddleware := mw.NewAuthMiddleware(config, sb, logger)
 				e.Use(middleware.Secure())
+				e.Use(authMiddleware.WithUser)
 
 				// CORS Middleware
 				e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-					//AllowOrigins: []string{"http://localhost:5173", "http://localhost:8080"},
 					AllowOriginFunc: func(origin string) (bool, error) {
-						fmt.Println(origin)
 						return true, nil
 					},
-					AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+					AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+					AllowCredentials: true,
 				}))
-
-				//e.Static("/public", "internal/app/shared/ui/static")
 				return e, nil
 			},
 		},
@@ -176,4 +176,14 @@ func addEcho(container *di.Builder) error {
 
 func getApiGroup(ctn di.Container) *echo.Group {
 	return ctn.Get("api_v1").(*echo.Group)
+}
+
+func makeAuthGroup(ctn di.Container, prefix string) *echo.Group {
+	logger := ctn.Get("log").(*slog.Logger)
+	sb := ctn.Get("supabase").(*supa.Supabase)
+	cfg := ctn.Get("config").(*application.Config)
+	baseGroup := getApiGroup(ctn)
+
+	authMw := mw.NewAuthMiddleware(cfg, sb, logger)
+	return baseGroup.Group(prefix, authMw.WithAuthenticatedUser)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/nedpals/supabase-go"
 	"net/http"
-	"upworkapi/internal/features/auth/cookie"
+	"upworkapi/internal/shared/auth"
 	"upworkapi/internal/shared/contract"
 	"upworkapi/internal/shared/contract/params"
 )
@@ -46,21 +46,23 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
-		authDetails, err := ep.Supabase.Client.Auth.SignIn(ctx, supabase.UserCredentials{
+		credentials := supabase.UserCredentials{
 			Email:    req.Email,
 			Password: req.Password,
-		})
+		}
+		authDetails, err := ep.Supabase.Client.Auth.SignIn(ctx, credentials)
 
 		if err != nil {
 			ep.Logger.Warn("login failed", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, ErrInvalidCredentials.Error())
+			return echo.NewHTTPError(http.StatusBadRequest, ErrInvalidCredentials.Error())
 		}
 
-		if err := cookie.SetAuthSession(c, authDetails.AccessToken, ep.SessionSecret); err != nil {
+		if err := auth.SetAuthSession(c, authDetails.AccessToken, ep.SessionSecret); err != nil {
 			ep.Logger.Error("could not set auth session", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, ErrLoggingIn.Error())
 		}
 
+		// TODO: Return an authenticated user object to be used in the React AuthContext
 		return c.JSON(http.StatusOK, echo.Map{})
 	}
 }
