@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/nedpals/supabase-go"
-	"upworkapi/internal/features/auth/command"
+	"upworkapi/internal/features/onboarding/command"
+	"upworkapi/internal/shared/model"
+
+	shared "upworkapi/internal/shared/command"
 )
 
 func (app *Application) ConfigureMediator() error {
@@ -14,8 +16,20 @@ func (app *Application) ConfigureMediator() error {
 		return errors.New("db connection error")
 	}
 
-	getUserByEmailHandler := &command.GetSupabaseUserByEmailHandler{DB: db}
-	err := mediatr.RegisterRequestHandler[*command.GetSupabaseUserByEmail, *supabase.User](getUserByEmailHandler)
+	getUserByIdHandler := &shared.GetUserByIDHandler{DB: db}
+	err := mediatr.RegisterRequestHandler[*shared.GetUserByIDQuery, *model.User](getUserByIdHandler)
+	if err != nil {
+		return err
+	}
+
+	getUserByEmailHandler := &shared.GetUserByEmailHandler{DB: db}
+	err = mediatr.RegisterRequestHandler[*shared.GetUserByEmail, *model.User](getUserByEmailHandler)
+	if err != nil {
+		return err
+	}
+
+	updateProfileHandler := &command.UpdateProfileHandler{DB: db}
+	err = mediatr.RegisterRequestHandler[*command.UpdateProfileCommand, bool](updateProfileHandler)
 	if err != nil {
 		return err
 	}

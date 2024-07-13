@@ -41,7 +41,7 @@ func (m AuthMiddleware) WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 
 		sbUser, err := m.Supabase.Client.Auth.User(ctx, accessToken)
 		if err != nil {
-			m.Logger.Info("supabase error authenticating user", "error", err)
+			m.Logger.Info("supabase error authenticating user")
 			return next(c)
 		}
 
@@ -53,6 +53,7 @@ func (m AuthMiddleware) WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 
 		authenticatedAccount := auth.AuthenticatedUser{
 			ID:          userID,
+			Email:       sbUser.Email,
 			AccessToken: accessToken,
 			LoggedIn:    true,
 		}
@@ -72,3 +73,15 @@ func (m AuthMiddleware) WithAuthenticatedUser(next echo.HandlerFunc) echo.Handle
 		return next(c)
 	}
 }
+
+//func (m AuthMiddleware) WithProfile(next echo.HandlerFunc) echo.HandlerFunc {
+//	return func(c echo.Context) error {
+//		user := auth.GetAuthenticatedUser(c)
+//		if user.ProfileComplete() {
+//			return next(c)
+//		}
+//
+//		m.Logger.Info("user profile incomplete, redirecting")
+//		return c.Redirect(http.StatusFound, "/onboarding/profile")
+//	}
+//}

@@ -6,9 +6,10 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 	"github.com/nedpals/supabase-go"
 	"net/http"
-	"upworkapi/internal/features/auth/command"
+	"upworkapi/internal/shared/command"
 	"upworkapi/internal/shared/contract"
 	"upworkapi/internal/shared/contract/params"
+	"upworkapi/internal/shared/model"
 )
 
 type signUpEndpoint struct {
@@ -44,8 +45,8 @@ func (ep *signUpEndpoint) signUpHandler() echo.HandlerFunc {
 		}
 
 		// Determine if the user already exists
-		cmd := &command.GetSupabaseUserByEmail{Email: req.Email}
-		_, err := mediatr.Send[*command.GetSupabaseUserByEmail, *supabase.User](ctx, cmd)
+		cmd := &command.GetUserByEmail{Email: req.Email}
+		_, err := mediatr.Send[*command.GetUserByEmail, *model.User](ctx, cmd)
 		if err == nil {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "Email already exists")
 		} else if !errors.Is(err, command.ErrUserNotFound) {

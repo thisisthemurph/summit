@@ -4,11 +4,14 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/mehdihadeli/go-mediatr"
 	"github.com/nedpals/supabase-go"
 	"net/http"
 	"upworkapi/internal/shared/auth"
+	"upworkapi/internal/shared/command"
 	"upworkapi/internal/shared/contract"
 	"upworkapi/internal/shared/contract/params"
+	"upworkapi/internal/shared/model"
 )
 
 var (
@@ -47,6 +50,8 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
+		// Sign the user in using Supabase
+
 		credentials := supabase.UserCredentials{
 			Email:    req.Email,
 			Password: req.Password,
@@ -58,18 +63,32 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, ErrInvalidCredentials.Error())
 		}
 
+		// Set the auth session cookie
+
 		if err := auth.SetAuthSession(c, authDetails.AccessToken, ep.SessionSecret); err != nil {
 			ep.Logger.Error("could not set auth session", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, ErrLoggingIn.Error())
 		}
 
+		// Get user information from the database
+
 		userID, _ := uuid.Parse(authDetails.User.ID)
-		authenticatedUser := auth.AuthenticatedUser{
-			ID:    userID,
-			Name:  "",
-			Email: authDetails.User.Email,
+		cmd := &command.GetUserByIDQuery{ID: userID}
+		user, err := mediatr.Send[*command.GetUserByIDQuery, *model.User](ctx, cmd)
+		if err != nil {
+			ep.Logger.Warn("could not get user", "error", err)
+			if errors.Is(err, command.ErrUserNotFound) {
+				return echo.NewHTTPError(http.StatusNotFound, "user not found")
+			}
+			return echo.NewHTTPError(http.StatusInternalServerError, ErrLoggingIn.Error())
 		}
 
+		authenticatedUser := auth.AuthenticatedUser{
+			ID:        user.ID,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+		}
 		return c.JSON(http.StatusOK, authenticatedUser)
 	}
 }

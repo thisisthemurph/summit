@@ -2,15 +2,17 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
+import { AuthProvider } from "./hooks/useAuth.tsx";
+import OnboardingPrivateRoute from "./shared/components/OnboardingPrivateRoute.tsx";
+import PrivateRoute from "./shared/components/PrivateRoute.tsx";
+
 import Root from "./shared/routes/root"
 import ErrorPage from "./shared/routes/ErrorPage.tsx";
 import LoginPage from "./features/auth/LoginPage.tsx";
 import HomePage from "./features/home/HomePage.tsx";
 import SignUpPage from "./features/auth/SignUpPage.tsx";
 import DashboardPage from "./features/dashboard/DashboardPage.tsx";
-import PrivateRoute from "./shared/components/PrivateRoute.tsx";
-
-import {AuthProvider} from "./hooks/useAuth.tsx";
+import ProfileSetupPage from "./features/onboarding/ProfileSetupPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,16 @@ const router = createBrowserRouter([
           }
         ],
       },
+      {
+        path: "/onboarding",
+        element: <OnboardingPrivateRoute />,
+        children: [
+          {
+            path: "/onboarding/profile",
+            element: <ProfileSetupPage />,
+          }
+        ]
+      }
     ]
   },
 ]);
