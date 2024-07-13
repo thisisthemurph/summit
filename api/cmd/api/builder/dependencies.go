@@ -9,12 +9,14 @@ import (
 	"log/slog"
 	"os"
 	"upworkapi/cmd/api/application"
-	authEndpoint "upworkapi/internal/features/auth/endpoint"
 	"upworkapi/internal/shared/contract"
 	"upworkapi/internal/shared/contract/params"
 	mw "upworkapi/internal/shared/middleware"
 	"upworkapi/pkg/db"
 	"upworkapi/pkg/supa"
+
+	authEndpoint "upworkapi/internal/features/auth/endpoint"
+	onboardingEndpoint "upworkapi/internal/features/onboarding/endpoint"
 )
 
 func check(e error) {
@@ -86,10 +88,12 @@ func (b *ApplicationBuilder) AddRoutes() {
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
 			authRouteParams := ctn.Get("auth_route_group").(*params.AuthRouteParams)
+			onboardingRouteParams := ctn.Get("onboarding_route_group").(*params.OnboardingRouteParams)
 
 			endpoints := []contract.Endpoint{
 				authEndpoint.NewLoginEndpoint(*authRouteParams),
 				authEndpoint.NewSignUpEndpoint(*authRouteParams),
+				onboardingEndpoint.NewOnboardingProfileEndpoint(*onboardingRouteParams),
 			}
 
 			return endpoints, nil
@@ -162,6 +166,21 @@ func addEcho(container *di.Builder) error {
 				}
 
 				return authRouteParams, nil
+			},
+		},
+		{
+			Name:  "onboarding_route_group",
+			Scope: di.App,
+			Build: func(ctn di.Container) (interface{}, error) {
+				group := makeAuthGroup(ctn, "/onboarding")
+				logger := ctn.Get("log").(*slog.Logger)
+
+				onboardingRouteParams := &params.OnboardingRouteParams{
+					OnboardingGroup: group,
+					Logger:          logger,
+				}
+
+				return onboardingRouteParams, nil
 			},
 		},
 	}
