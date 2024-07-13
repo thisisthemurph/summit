@@ -13,12 +13,12 @@ func GetAuthenticatedUser(c echo.Context) AuthenticatedUser {
 	return user
 }
 
-func SaveAuthenticatedUserInContext(c echo.Context, account AuthenticatedUser) {
+func SaveAuthenticatedUserInContext(c echo.Context, user AuthenticatedUser) {
 	r := c.Request()
 	ctx := c.Request().Context()
 
 	// Persist session in the echo context
-	c.Set(string(AuthenticatedUserContextKey), account)
+	c.Set(string(AuthenticatedUserContextKey), user)
 	// Persist the session in the request context
-	c.SetRequest(r.WithContext(context.WithValue(ctx, AuthenticatedUserContextKey, account)))
+	c.SetRequest(r.WithContext(context.WithValue(ctx, AuthenticatedUserContextKey, user)))
 }
