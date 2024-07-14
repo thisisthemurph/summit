@@ -4,6 +4,7 @@ import { z, ZodType } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { useNavigate } from "react-router-dom";
+import Container from "../../shared/components/Container.tsx";
 
 type FormValues = {
   email: string;
@@ -34,16 +35,14 @@ function LoginPage() {
   })
 
   return (
-    <>
-      <section className="prose mb-6">
-        <h1>Login</h1>
-      </section>
+    <Container>
       <form onSubmit={onSubmit} className="space-y-4">
+        <h1 className="text-2xl">Log in</h1>
         <FormField type="email" label="Email address" placeholder="Your email address" register={register("email")} error={errors.email} />
         <FormField type="password" label="Password" placeholder="Your password" register={register("password")} error={errors.password} />
         <button type="submit" className="btn btn-primary">Login</button>
       </form>
-    </>
+    </Container>
   )
 }
 

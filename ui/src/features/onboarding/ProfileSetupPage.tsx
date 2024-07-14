@@ -4,6 +4,8 @@ import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useEffect, useState} from "react";
 import axiosInstance from "../../shared/requests/axiosInstance";
+import PageHeader from "../../shared/components/PageHeader.tsx";
+import Container from "../../shared/components/Container.tsx";
 
 
 type FormValues = {
@@ -54,14 +56,14 @@ function ProfileSetupPage() {
 
   return (
     <>
-      <section className="prose mb-6">
-        <h1>Set up your profile</h1>
-      </section>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <FormField label="First name" register={register("firstName")} error={errors.firstName}/>
-        <FormField label="Last name" register={register("lastName")} error={errors.lastName}/>
-        <button type="submit" className="btn btn-primary" disabled={isLoading}>Continue</button>
-      </form>
+      <PageHeader title="Complete your profile" subtitle="Complete the onboarding process before continuing..." />
+      <Container>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <FormField label="First name" register={register("firstName")} error={errors.firstName}/>
+          <FormField label="Last name" register={register("lastName")} error={errors.lastName}/>
+          <button type="submit" className="btn btn-primary" disabled={isLoading}>Continue</button>
+        </form>
+      </Container>
     </>
   )
 }

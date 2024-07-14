@@ -6,10 +6,8 @@ function Header() {
   const {isAuthenticated, logoutUser} = useAuth();
 
   return (
-    <section className="p-4 bg-base-200">
-      <div>
-        <h1>Summit</h1>
-      </div>
+    <section className="flex justify-between p-4 bg-base-100">
+      <h1 className="text-3xl">Summit</h1>
       <Nav isAuthenticated={isAuthenticated} logoutUser={logoutUser} />
     </section>
   )

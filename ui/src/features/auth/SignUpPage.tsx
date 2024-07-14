@@ -4,6 +4,7 @@ import { z, ZodType } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import axiosInstance from "../../shared/requests/axiosInstance";
 import {AxiosError} from "axios";
+import Container from "../../shared/components/Container.tsx";
 
 type FormValues = {
   email: string;
@@ -48,20 +49,18 @@ function SignUpPage() {
       }
       alert(message);
     }
-  })
+  });
 
   return (
-    <>
-      <section className="prose mb-6">
-        <h1>Sign up</h1>
-      </section>
+    <Container>
       <form onSubmit={onSubmit} className="space-y-4">
+        <h1 className="text-2xl">Sign up</h1>
         <FormField type="email" label="Email address" placeholder="Your email address" register={register("email")} error={errors.email} />
         <FormField type="password" label="Password" placeholder="Your password" register={register("password")} error={errors.password} />
         <FormField type="password" label="Confirm password" placeholder="Confirm your password" register={register("confirmPassword")} error={errors.confirmPassword} />
         <button type="submit" className="btn btn-primary">Login</button>
       </form>
-    </>
+    </Container>
   )
 }
 
