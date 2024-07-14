@@ -1,5 +1,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
-import { AuthenticatedUser } from "../shared/types/responseTypes.ts";
+import { AuthenticatedUser } from "../shared/types/responseTypes";
+import axiosInstance from "../shared/requests/axiosInstance";
+import {AxiosError} from "axios";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -40,26 +42,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [authenticatedUser]);
 
   const loginUser = async (email: string, password: string) => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const result = await fetch(`${baseUrl}/login`, {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
+    try {
+      const response = await axiosInstance.post<AuthenticatedUser>("/login", {email, password});
+      setIsAuthenticated(true);
+      setAuthenticatedUser(response.data);
+    } catch (e) {
+      let message = "There was an issue logging you in";
+      if (e instanceof AxiosError) {
+        message = e.response?.data?.message ? e.response.data.message : message;
       }
-    });
 
-    if (result.status !== 200) {
       setIsAuthenticated(false);
       setAuthenticatedUser(null);
-      alert("There was an error logging you in!");
-      return;
+      alert(message);
     }
-
-    const user = await result.json();
-    setIsAuthenticated(true);
-    setAuthenticatedUser(user);
   }
 
   const logoutUser = () => {

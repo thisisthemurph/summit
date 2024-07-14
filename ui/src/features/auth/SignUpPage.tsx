@@ -2,6 +2,8 @@ import { useForm } from 'react-hook-form';
 import { FormField } from "../../shared/components/Forms.tsx";
 import { z, ZodType } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
+import axiosInstance from "../../shared/requests/axiosInstance";
+import {AxiosError} from "axios";
 
 type FormValues = {
   email: string;
@@ -9,11 +11,18 @@ type FormValues = {
   confirmPassword: string;
 }
 
+type UserResponse = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 const SignUpSchema: ZodType<FormValues> = z
   .object({
     email: z.string().email("Email is not valid"),
     password: z.string()
-      .min(6, "Password must be at least 6 characters long")
+      // .min(6, "Password must be at least 6 characters long")
       .max(24, "Password cannot be more than 24 characters long"),
     confirmPassword: z.string(),
   }).refine((data) => data.password === data.confirmPassword, {
@@ -29,9 +38,16 @@ function SignUpPage() {
   } = useForm<FormValues>({ resolver: zodResolver(SignUpSchema)});
 
   const onSubmit = handleSubmit(async (data) => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const result = await fetch(`${baseUrl}/signup`, {method: "POST", body: JSON.stringify(data)});
-    console.log(result);
+    try {
+      const response = await axiosInstance.post<UserResponse>("/signup", data);
+      console.log(response.data);
+    } catch (e) {
+      let message = "There has been an error signing you up";
+      if (e instanceof AxiosError) {
+        message = e.response?.data?.message ? e.response.data.message : message;
+      }
+      alert(message);
+    }
   })
 
   return (

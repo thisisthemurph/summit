@@ -1,8 +1,10 @@
-import {FormField} from "../../shared/components/Forms.tsx";
+import {FormField} from "../../shared/components/Forms";
 import {z, ZodType} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useEffect, useState} from "react";
+import axiosInstance from "../../shared/requests/axiosInstance";
+
 
 type FormValues = {
   firstName: string;
@@ -31,39 +33,21 @@ function ProfileSetupPage() {
   useEffect(() => {
     const getProfileData = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL;
-        const response = await fetch(`${baseUrl}/onboarding/profile`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          }
-        });
-        const data = await response.json();
-        reset(data);
-      } catch {
-        console.error("Error fetching profile data");
+        const response = await axiosInstance.get<FormValues>("/onboarding/profile");
+        reset(response.data);
       } finally {
         setIsLoading(false);
       }
     }
 
+    setIsLoading(true);
     getProfileData();
   }, [reset]);
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data);
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const result = await fetch(`${baseUrl}/onboarding/profile`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      }
-    });
-
-    if (result.status !== 200) {
+    try {
+      await axiosInstance.post("/onboarding/profile", data);
+    } catch {
       alert("There has been an issue updating your personal data!");
     }
   })
