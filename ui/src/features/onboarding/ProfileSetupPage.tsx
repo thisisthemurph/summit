@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 import axiosInstance from "../../shared/requests/axiosInstance";
 import PageHeader from "../../shared/components/PageHeader.tsx";
 import Container from "../../shared/components/Container.tsx";
+import {useNavigate} from "react-router-dom";
 
 
 type FormValues = {
@@ -24,6 +25,7 @@ const ProfileSchema: ZodType<FormValues> = z
   });
 
 function ProfileSetupPage() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const {
     register,
@@ -49,6 +51,7 @@ function ProfileSetupPage() {
   const onSubmit = handleSubmit(async (data) => {
     try {
       await axiosInstance.post("/onboarding/profile", data);
+      navigate("/dashboard");
     } catch {
       alert("There has been an issue updating your personal data!");
     }
