@@ -23,7 +23,7 @@ func NewOnboardingProfileEndpoint(routeParams params.OnboardingRouteParams) *Onb
 
 func (ep *OnboardingProfileEndpoint) MapEndpoint() {
 	ep.OnboardingGroup.GET("/profile", ep.getProfileData())
-	ep.OnboardingGroup.POST("/profile", ep.submitHandler())
+	ep.OnboardingGroup.POST("/profile", ep.upsertProfileData())
 }
 
 type GetProfileResponse struct {
@@ -54,7 +54,7 @@ type UpdateProfileRequest struct {
 	LastName  string `json:"lastName" validate:"required,min=1,max=32"`
 }
 
-func (ep *OnboardingProfileEndpoint) submitHandler() echo.HandlerFunc {
+func (ep *OnboardingProfileEndpoint) upsertProfileData() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		user := auth.GetAuthenticatedUser(c)

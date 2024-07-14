@@ -18,7 +18,7 @@ type GetUserByEmailHandler struct {
 
 func (h *GetUserByEmailHandler) Handle(ctx context.Context, req *GetUserByEmail) (*model.User, error) {
 	query := `
-		SELECT u.id, p.name, u.email
+		SELECT u.id, p.first_name, p.last_name, u.email
 		FROM auth.users u
 		LEFT JOIN public.user_profiles p ON u.id = p.id
 		WHERE email = $1

@@ -73,15 +73,3 @@ func (m AuthMiddleware) WithAuthenticatedUser(next echo.HandlerFunc) echo.Handle
 		return next(c)
 	}
 }
-
-//func (m AuthMiddleware) WithProfile(next echo.HandlerFunc) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		user := auth.GetAuthenticatedUser(c)
-//		if user.ProfileComplete() {
-//			return next(c)
-//		}
-//
-//		m.Logger.Info("user profile incomplete, redirecting")
-//		return c.Redirect(http.StatusFound, "/onboarding/profile")
-//	}
-//}

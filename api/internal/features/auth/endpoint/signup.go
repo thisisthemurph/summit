@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
 	"github.com/nedpals/supabase-go"
@@ -29,7 +30,7 @@ func (ep *signUpEndpoint) MapEndpoint() {
 type signUpRequest struct {
 	Email                string `json:"email" validate:"required,email"`
 	Password             string `json:"password" validate:"required,min=8"`
-	ConfirmationPassword string `json:"confirmationPassword" validate:"required,eqfield=Password"`
+	ConfirmationPassword string `json:"confirmPassword" validate:"required,eqfield=Password"`
 }
 
 func (ep *signUpEndpoint) signUpHandler() echo.HandlerFunc {
@@ -41,7 +42,7 @@ func (ep *signUpEndpoint) signUpHandler() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		if err := c.Validate(req); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+			return echo.NewHTTPError(http.StatusBadRequest, "Inputs do not match requirements")
 		}
 
 		// Determine if the user already exists
@@ -63,6 +64,10 @@ func (ep *signUpEndpoint) signUpHandler() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
-		return c.JSON(http.StatusCreated, user)
+		userID, _ := uuid.Parse(user.ID)
+		return c.JSON(http.StatusCreated, model.User{
+			ID:    userID,
+			Email: user.Email,
+		})
 	}
 }

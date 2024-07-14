@@ -67,7 +67,7 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 
 		if err := auth.SetAuthSession(c, authDetails.AccessToken, ep.SessionSecret); err != nil {
 			ep.Logger.Error("could not set auth session", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, ErrLoggingIn.Error())
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
 		// Get user information from the database
@@ -80,7 +80,7 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 			if errors.Is(err, command.ErrUserNotFound) {
 				return echo.NewHTTPError(http.StatusNotFound, "user not found")
 			}
-			return echo.NewHTTPError(http.StatusInternalServerError, ErrLoggingIn.Error())
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
 		authenticatedUser := auth.AuthenticatedUser{
