@@ -93,6 +93,7 @@ func (b *ApplicationBuilder) AddRoutes() {
 			endpoints := []contract.Endpoint{
 				authEndpoint.NewLoginEndpoint(*authRouteParams),
 				authEndpoint.NewSignUpEndpoint(*authRouteParams),
+				authEndpoint.NewLogOutEndpoint(*authRouteParams),
 				onboardingEndpoint.NewOnboardingProfileEndpoint(*onboardingRouteParams),
 			}
 

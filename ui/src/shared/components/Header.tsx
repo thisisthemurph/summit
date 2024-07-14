@@ -1,26 +1,64 @@
 import {Link} from "react-router-dom";
+import {useAuth} from "../../hooks/useAuth.tsx";
+import axiosInstance from "../requests/axiosInstance.ts";
 
 function Header() {
+  const {isAuthenticated, logoutUser} = useAuth();
+
   return (
     <section className="p-4 bg-base-200">
       <div>
-        <h1>React Router</h1>
+        <h1>Summit</h1>
       </div>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home Page</Link>
-          </li>
-          <li>
-            <Link to="/login">Login</Link>
-          </li>
-          <li>
-            <Link to="/signup">Signup</Link>
-          </li>
-        </ul>
-      </nav>
+      <Nav isAuthenticated={isAuthenticated} logoutUser={logoutUser} />
     </section>
   )
+}
+
+type NavProps = {
+  isAuthenticated: boolean;
+  logoutUser: () => void;
+}
+
+function Nav({isAuthenticated, logoutUser}: NavProps) {
+  const handleLogOut = async () => {
+    try {
+      await axiosInstance.post("/logout");
+      logoutUser();
+    } catch (e) {
+      alert("There was an issue logging you out");
+    }
+  }
+
+  return (
+    <nav>
+      <ul>
+        <li>
+          <Link to="/">Home Page</Link>
+        </li>
+        {!isAuthenticated && (
+          <>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+            <Link to="/signup">Signup</Link>
+            </li>
+          </>
+        )}
+        {isAuthenticated && (
+          <>
+            <li>
+              <Link to="/dashboard">Dashboard</Link>
+            </li>
+            <li>
+              <button onMouseUp={handleLogOut}>Log out</button>
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
 }
 
 export default Header;
