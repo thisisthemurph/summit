@@ -36,7 +36,10 @@ function SignUpPage() {
     register,
     handleSubmit,
     formState: {errors}
-  } = useForm<FormValues>({ resolver: zodResolver(SignUpSchema)});
+  } = useForm<FormValues>({
+    resolver: zodResolver(SignUpSchema),
+    defaultValues: { email: import.meta.env.VITE_DEV_EMAIL },
+  });
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -57,7 +60,6 @@ function SignUpPage() {
         <h1 className="text-2xl">Sign up</h1>
         <FormField type="email"
                    label="Email address"
-                   value={import.meta.env.VITE_DEV_EMAIL}
                    placeholder="Your email address"
                    register={register("email")}
                    error={errors.email}/>

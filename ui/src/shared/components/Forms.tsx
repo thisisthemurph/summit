@@ -5,13 +5,12 @@ import {FieldError, UseFormRegisterReturn} from "react-hook-form";
 type InputProps = {
   type?: InputType;
   label: string;
-  value?: string;
   placeholder?: string;
   register: UseFormRegisterReturn;
   error: FieldError | undefined;
 }
 
-const FormField = ({type, label, value, placeholder, register, error}: InputProps) => {
+const FormField = ({type, label, placeholder, register, error}: InputProps) => {
   return (
     <label className="form-control w-full">
       <div className="label">
@@ -20,7 +19,6 @@ const FormField = ({type, label, value, placeholder, register, error}: InputProp
       <input
         {...register}
         type={type ?? "text"}
-        value={value ?? ""}
         placeholder={placeholder}
         className="input input-bordered w-full"
       />
