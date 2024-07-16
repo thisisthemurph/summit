@@ -58,7 +58,7 @@ function SignUpPage() {
         <FormField type="email" label="Email address" placeholder="Your email address" register={register("email")} error={errors.email} />
         <FormField type="password" label="Password" placeholder="Your password" register={register("password")} error={errors.password} />
         <FormField type="password" label="Confirm password" placeholder="Confirm your password" register={register("confirmPassword")} error={errors.confirmPassword} />
-        <button type="submit" className="btn btn-primary">Login</button>
+        <button type="submit" className="btn btn-primary">Signup</button>
       </form>
     </Container>
   )
