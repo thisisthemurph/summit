@@ -55,9 +55,22 @@ function SignUpPage() {
     <Container>
       <form onSubmit={onSubmit} className="space-y-4">
         <h1 className="text-2xl">Sign up</h1>
-        <FormField type="email" label="Email address" placeholder="Your email address" register={register("email")} error={errors.email} />
-        <FormField type="password" label="Password" placeholder="Your password" register={register("password")} error={errors.password} />
-        <FormField type="password" label="Confirm password" placeholder="Confirm your password" register={register("confirmPassword")} error={errors.confirmPassword} />
+        <FormField type="email"
+                   label="Email address"
+                   value={import.meta.env.VITE_DEV_EMAIL}
+                   placeholder="Your email address"
+                   register={register("email")}
+                   error={errors.email}/>
+        <FormField type="password"
+                   label="Password"
+                   placeholder="Your password"
+                   register={register("password")}
+                   error={errors.password}/>
+        <FormField type="password"
+                   label="Confirm password"
+                   placeholder="Confirm your password"
+                   register={register("confirmPassword")}
+                   error={errors.confirmPassword}/>
         <button type="submit" className="btn btn-primary">Signup</button>
       </form>
     </Container>
