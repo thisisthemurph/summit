@@ -15,7 +15,6 @@ import (
 )
 
 var (
-	ErrLoggingIn          = errors.New("there has been an issue logging you in")
 	ErrInvalidCredentials = errors.New("the provided credentials are invalid")
 )
 
@@ -31,6 +30,7 @@ func NewLoginEndpoint(routeParams params.AuthRouteParams) contract.Endpoint {
 
 func (ep *loginEndpoint) MapEndpoint() {
 	ep.RootGroup.POST("/login", ep.loginHandler())
+	ep.RootGroup.POST("/login/token", ep.loginWithToken())
 }
 
 type LoginRequest struct {
@@ -88,6 +88,52 @@ func (ep *loginEndpoint) loginHandler() echo.HandlerFunc {
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
 			Email:     user.Email,
+		}
+		return c.JSON(http.StatusOK, authenticatedUser)
+	}
+}
+
+type LoginWithTokenRequest struct {
+	AccessToken string `json:"token" validate:"required"`
+}
+
+// loginWithToken handler used for automatically logging the user in when they click the email confirmation link.
+//   - User clicks the link in the email
+//   - Navigates to Supabase for authentication and confirmation of email address
+//   - Supabase redirects the user to the auth callback page
+//   - Callback page makes a request to this handler
+//   - This handler stored the access token in a cookie and sends back the authenticated user data
+func (ep *loginEndpoint) loginWithToken() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		var req LoginWithTokenRequest
+		if err := c.Bind(&req); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		if err := c.Validate(req); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		// Set the auth session cookie
+
+		if err := auth.SetAuthSession(c, req.AccessToken, ep.SessionSecret); err != nil {
+			ep.Logger.Error("could not set auth session", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		// Get the authenticated user
+
+		user, err := ep.Supabase.Client.Auth.User(ctx, req.AccessToken)
+		if err != nil {
+			ep.Logger.Warn("could not get user", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		userID, _ := uuid.Parse(user.ID)
+		authenticatedUser := auth.AuthenticatedUser{
+			ID:    userID,
+			Email: user.Email,
 		}
 		return c.JSON(http.StatusOK, authenticatedUser)
 	}

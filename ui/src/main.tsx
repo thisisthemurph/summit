@@ -13,6 +13,7 @@ import HomePage from "./features/home/HomePage.tsx";
 import SignUpPage from "./features/auth/SignUpPage.tsx";
 import DashboardPage from "./features/dashboard/DashboardPage.tsx";
 import ProfileSetupPage from "./features/onboarding/ProfileSetupPage.tsx";
+import AuthConfirmationPage from "./features/auth/AuthConfirmationPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,11 @@ const router = createBrowserRouter([
       {
         path: "/signup",
         element: <SignUpPage />,
+      },
+      {
+        // https://uizsdwzazgcdodwmubcq.supabase.co/auth/v1/verify?token=3dd3309a89b8b33660e06c21ea5335f4bf4204a14269967ba991d2b6&type=signup&redirect_to=http://localhost:3000
+        path: "/auth/callback",
+        element: <AuthConfirmationPage />
       },
       {
         path: "/dashboard",

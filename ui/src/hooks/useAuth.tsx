@@ -7,6 +7,7 @@ interface AuthContextProps {
   isAuthenticated: boolean;
   authenticatedUser: AuthenticatedUser | null;
   loginUser: (email: string, password: string) => Promise<void>;
+  loginUserWithToken: (token: string) => Promise<void>;
   logoutUser: () => void;
 }
 
@@ -58,13 +59,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }
 
+  const loginUserWithToken = async (token: string) => {
+    try {
+      await axiosInstance.post("/login/token", {token});
+      setIsAuthenticated(true);
+      setAuthenticatedUser(null); // TODO: Send user back
+    } catch (e) {
+      let message = "There was an issue logging you in";
+      if (e instanceof AxiosError) {
+        message = e.response?.data?.message ? e.response.data.message : message;
+      }
+
+      setIsAuthenticated(false);
+      setAuthenticatedUser(null);
+      alert(message);
+    }
+  }
+
   const logoutUser = () => {
     setIsAuthenticated(false);
     setAuthenticatedUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{isAuthenticated, authenticatedUser, loginUser, logoutUser}}>
+    <AuthContext.Provider value={{isAuthenticated, authenticatedUser, loginUser, logoutUser, loginUserWithToken}}>
       {children}
     </AuthContext.Provider>
   )
