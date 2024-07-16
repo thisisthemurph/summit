@@ -9,6 +9,7 @@ interface AuthContextProps {
   loginUser: (email: string, password: string) => Promise<void>;
   loginUserWithToken: (token: string) => Promise<void>;
   logoutUser: () => void;
+  updateAuthenticatedUser: (user: AuthenticatedUser) => void;
 }
 
 type AuthProviderProps = {
@@ -81,8 +82,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setAuthenticatedUser(null);
   }
 
+  const updateAuthenticatedUser = (user: AuthenticatedUser) => {
+    setAuthenticatedUser(user);
+  }
+
   return (
-    <AuthContext.Provider value={{isAuthenticated, authenticatedUser, loginUser, logoutUser, loginUserWithToken}}>
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      authenticatedUser,
+      loginUser,
+      logoutUser,
+      loginUserWithToken,
+      updateAuthenticatedUser
+    }}>
       {children}
     </AuthContext.Provider>
   )
