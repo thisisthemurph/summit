@@ -60,7 +60,7 @@ func (ep *signUpEndpoint) signUpHandler() echo.HandlerFunc {
 			Email:    req.Email,
 			Password: req.Password,
 		})
-		if err != nil && err.Error() != "Email rate limit exceeded" {
+		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
